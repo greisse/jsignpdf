@@ -396,12 +396,30 @@
 		<copy file="${dist.doc.dir}/JSignPdf.pdf" tofile="${output.dir}/JSignPdf guide ${jsignpdf.version}.pdf"/>
 	</target>
 
-	<target name="installer" depends="jar,unpack-jre,launcher,doc">
+	<target name="installer_original" depends="jar,unpack-jre,launcher,doc">
 		<echo message="Creating a windows setup" />
 		<exec failonerror="false"
-				executable="unsorted/iscc">
+				executable="iscc">
 			<arg line="${dist.dir}"/>
 			<arg line="${output.dir}"/>
+			<arg line="/dMyAppName=JSignPdf"/>
+			<arg line="/dMyAppVersion=${jsignpdf.version}"/>
+			<arg line="/dMyAppVersionWin=${jsignpdf.version}.0"/>
+			<arg line="/dMyAppId=JSignPdf"/>
+			<arg line="/dMyAppFilename=${jsignpdf.filename}"/>
+		</exec>
+	</target>
+
+	<target name="installer" depends="jar,unpack-jre,launcher,doc">
+		<echo message="Creating a windows setup (hoda5) - ${dist.dir}" />
+		<exec failonerror="false"
+				executable="iscc">
+			
+			<arg line="JSignPdf.iss"/>
+			<arg line="/dDistDir=${dist.dir}"/>
+			<arg line="/dOutputDir=${output.dir}"/>
+
+
 			<arg line="/dMyAppName=JSignPdf"/>
 			<arg line="/dMyAppVersion=${jsignpdf.version}"/>
 			<arg line="/dMyAppVersionWin=${jsignpdf.version}.0"/>
@@ -475,6 +493,7 @@
 	</target>
 
 	<target name="all" depends="zip,oxt,installer,src,macosx"/>
+	<target name="hoda5" depends="zip,oxt,installer"/>
 
 	<target name="src" depends="prepare">
 		<echo message="Creating package from 'live' sources" />

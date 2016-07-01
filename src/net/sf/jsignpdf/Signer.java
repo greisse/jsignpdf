@@ -70,6 +70,7 @@ import org.apache.log4j.Logger;
  */
 public class Signer {
 
+	private static boolean modo_hoda5 = false;
 	private final static Logger LOGGER = Logger.getLogger(Signer.class);
 	static String pkcs11ProviderName = null;
 
@@ -96,6 +97,7 @@ public class Signer {
 		if (args != null && args.length > 0) {
 			tmpOpts = new SignerOptionsFromCmdLine();
 			if (args[0].equals("-i")) {
+				modo_hoda5 =true;
 				args = hoda5Input(args);
 			}
 			parseCommandLine(args, tmpOpts);
@@ -279,7 +281,8 @@ public class Signer {
 					/**
 					 * Excluir o arquivo original
 					 */
-					inputFile.delete();
+					if (modo_hoda5)
+					  inputFile.delete();
 				} else {
 					failedCount++;
 				}
