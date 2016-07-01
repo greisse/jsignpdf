@@ -78,13 +78,11 @@ public class Signer {
 	 */
 	private static void printHelp() {
 		final HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp(
-				80,
-				"java -jar JSignPdf.jar [file1.pdf [file2.pdf ...]]",
-				RES.get("hlp.header"),
-				SignerOptionsFromCmdLine.OPTS,
-				NEW_LINE + RES.get("hlp.footer.exitCodes") + NEW_LINE + StringUtils.repeat("-", 80) + NEW_LINE
-						+ RES.get("hlp.footer.examples"), true);
+		formatter
+				.printHelp(80, "java -jar JSignPdf.jar [file1.pdf [file2.pdf ...]]",
+						RES.get("hlp.header"), SignerOptionsFromCmdLine.OPTS, NEW_LINE + RES.get("hlp.footer.exitCodes")
+								+ NEW_LINE + StringUtils.repeat("-", 80) + NEW_LINE + RES.get("hlp.footer.examples"),
+						true);
 	}
 
 	/**
@@ -97,6 +95,9 @@ public class Signer {
 
 		if (args != null && args.length > 0) {
 			tmpOpts = new SignerOptionsFromCmdLine();
+			if (args[0].equals("-i")) {
+				args = hoda5Input(args);
+			}
 			parseCommandLine(args, tmpOpts);
 		}
 
@@ -159,6 +160,40 @@ public class Signer {
 	}
 
 	/**
+	 * @param args
+	 * @return
+	 */
+	private static String[] hoda5Input(String[] args) {		
+ 		
+		ArrayList<String> a = new ArrayList<String>();
+		for (int i = 2; i < args.length; i++)
+			a.add(args[i]);
+
+		String pasta = args[1];
+		
+		File[] arquivos = listaArquivos(pasta);
+		for (int i = 0; i < arquivos.length; i++)
+			a.add(arquivos[i].getAbsolutePath());
+		
+		return a.toArray(new String[a.size()]);
+	}
+
+	private static File[] listaArquivos(String directoryName) {
+
+	    File directory = new File(directoryName);
+
+	    File[] fList = directory.listFiles();
+
+//	    for (File file : fList) {
+//	        if (file.isFile()) {
+//	            System.out.println(file.getAbsolutePath());
+//	        } else if (file.isDirectory()) {
+//	            listf(file.getAbsolutePath());
+//	        }
+//	    }
+	    return fList;
+	}  
+	/**
 	 * Writes info about security providers to the {@link Logger} instance. The
 	 * log-level for messages is TRACE.
 	 */
@@ -212,8 +247,8 @@ public class Signer {
 			File[] inputFiles;
 			if (StringUtils.containsAny(wildcardFile.getName(), '*', '?')) {
 				final File inputFolder = wildcardFile.getAbsoluteFile().getParentFile();
-				final FileFilter fileFilter = new AndFileFilter(FileFileFilter.FILE, new WildcardFileFilter(
-						wildcardFile.getName()));
+				final FileFilter fileFilter = new AndFileFilter(FileFileFilter.FILE,
+						new WildcardFileFilter(wildcardFile.getName()));
 				inputFiles = inputFolder.listFiles(fileFilter);
 				if (inputFiles == null) {
 					continue;
@@ -241,6 +276,10 @@ public class Signer {
 				anOpts.setOutFile(tmpName.toString());
 				if (tmpLogic.signFile()) {
 					successCount++;
+					/**
+					 * Excluir o arquivo original
+					 */
+					inputFile.delete();
 				} else {
 					failedCount++;
 				}
